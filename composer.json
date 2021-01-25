@@ -1,0 +1,40 @@
+{
+    "name": "fattureincloud/php-sdk-core",
+    "description": "PHP SDK core, shared between Fatture in Cloud and Dipendenti in Cloud",
+    "keywords": [
+        "fatture", "fattureincloud", "dipendenti", "dipendentincloud", "cloud", "api", "wrapper", "client", "sdk", "oauth"
+    ],
+    "homepage": "https://github.com/fattureincloud/php-sdk-core",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php" : ">=7.0.0",
+        "guzzlehttp/guzzle": "^7.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.18",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "MadBit\\SDK\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MadBit\\SDK\\Test\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "scripts": {
+        "run-tests": "./vendor/bin/phpunit tests",
+        "run-fixer": [
+            "./vendor/bin/php-cs-fixer fix src",
+            "./vendor/bin/php-cs-fixer fix tests"
+        ]
+    }
+}
