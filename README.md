@@ -1,10 +1,10 @@
-#PHP SDK Core
+# PHP SDK Core
 
 ## Description
 
-### !!! This package is not intended for direct usage. !!!
+### !!! This package is not intended for direct usage !!!
 
-Please see https://github.com/fattureincloud/php-sdk-fattureincloud if you want build something using the Fatture in Cloud API.
+Please see https://github.com/fattureincloud/php-sdk-fattureincloud if you want build something in PHP using the Fatture in Cloud API.
 
 ## Contribute
 
