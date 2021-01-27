@@ -15,14 +15,23 @@ class MadBitProvider extends AbstractProvider
 
     protected $apiDomain = '';
 
+    public function __construct(array $options = [], array $collaborators = [])
+    {
+        $this->domain = $options['domain'];
+        $this->apiDomain = $options['apiDomain'];
+        unset($options['domain']);
+        unset($options['apiDomain']);
+        parent::__construct($options, $collaborators);
+    }
+
     public function getBaseAuthorizationUrl()
     {
-        return $this->domain . '/login/oauth/authorize';
+        return $this->domain . '/oauth/authorize';
     }
 
     public function getBaseAccessTokenUrl(array $params)
     {
-        return $this->domain . '/login/oauth/authorize';
+        return $this->domain . '/oauth/access_token';
     }
 
     public function getApiDomain()

@@ -36,6 +36,10 @@
         "run-fixer": [
             "./vendor/bin/php-cs-fixer fix src",
             "./vendor/bin/php-cs-fixer fix tests"
+        ],
+        "run-code-checks": [
+            "./vendor/bin/php-cs-fixer fix src -v --dry-run || exit",
+            "./vendor/bin/php-cs-fixer fix tests -v --dry-run || exit"
         ]
     }
 }

@@ -12,6 +12,19 @@ use Psr\Http\Message\RequestInterface;
 class MadBitClient
 {
     /**
+     * The OAuth authorization server domain.
+     *
+     * @var string $domain
+     */
+    protected $domain;
+
+    /**
+     * The API server domain.
+     *
+     * @var string $apiDomain
+     */
+    protected $apiDomain;
+    /**
      * The OAuth provider.
      *
      * @var MadBitProvider $provider
@@ -45,6 +58,8 @@ class MadBitClient
             'clientId' => $clientId,
             'clientSecret' => $clientSecret,
             'redirectUri' => $redirectUri,
+            'domain' => $this->domain,
+            'apiDomain' => $this->apiDomain,
         ]);
     }
 

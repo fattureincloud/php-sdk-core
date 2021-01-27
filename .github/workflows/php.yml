@@ -32,3 +32,6 @@ jobs:
 
     - name: Run test suite
       run: composer run-tests
+
+    - name: Check coding standard
+        run: composer run-checks
