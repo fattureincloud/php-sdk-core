@@ -34,4 +34,4 @@ jobs:
       run: composer run-tests
 
     - name: Check coding standard
-        run: composer run-checks
+      run: composer run-checks
