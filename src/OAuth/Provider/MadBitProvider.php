@@ -41,7 +41,7 @@ class MadBitProvider extends AbstractProvider
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return $this->apiDomain . '/user';
+        return $this->apiDomain . '/user/info';
     }
 
     protected function getDefaultScopes()

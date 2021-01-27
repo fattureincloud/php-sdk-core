@@ -2,33 +2,58 @@
 
 namespace MadBit\SDK\Test\Core;
 
+use GuzzleHttp\Exception\ClientException;
 use MadBit\SDK\Core\MadBitClient;
+use MadBit\SDK\OAuth\Provider\MadBitIdentityProviderException;
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use TypeError;
 
 class MadBitClientTest extends TestCase
 {
+    private function createFICClient()
+    {
+        return new FICClient('12345', '67890', 'https://oauth-test.fattureincloud.it');
+    }
+
     public function test__construct()
     {
-        $client = new FICClient('12345', '67890', 'https://oauth-test.fattureincloud.it');
+        $client = $this->createFICClient();
         $this->assertInstanceOf(
             MadBitClient::class,
             $client
         );
     }
 
-    public function testGetAccessToken()
-    {
-    }
-
-    public function testExecuteAuthenticatedRequest()
-    {
-    }
-
     public function testGetAuthorizationParams()
     {
+        $client = $this->createFICClient();
+        $params = $client->getAuthorizationParams();
+        $expectedUrl = "https://api-v2.fattureincloud.it/oauth/authorize?state={$params['state']}&scope=&response_type=code&approval_prompt=auto&redirect_uri=https%3A%2F%2Foauth-test.fattureincloud.it&client_id=12345";
+        $this->assertEquals($expectedUrl, $params['authorization_url']);
     }
 
-    public function testGetResourceOwner()
+    public function testGetAccessTokenWithWrongAuthCode()
     {
+        $client = $this->createFICClient();
+        $this->expectException(MadBitIdentityProviderException::class);
+        $client->getAccessToken('00000');
+    }
+
+    public function testGetResourceOwnerWithoutAuthentication()
+    {
+        $client = $this->createFICClient();
+        $this->expectException(TypeError::class);
+        $client->getResourceOwner();
+    }
+
+    public function testExecuteAuthenticatedRequestWithoutAuthentication()
+    {
+        $client = $this->createFICClient();
+        try {
+            $client->executeAuthenticatedRequest('GET', 'user/info');
+        } catch (ClientException $e) {
+            $this->assertEquals(401, $e->getCode());
+        }
     }
 }

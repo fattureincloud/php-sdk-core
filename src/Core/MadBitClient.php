@@ -3,11 +3,15 @@
 namespace MadBit\SDK\Core;
 
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use MadBit\SDK\OAuth\Provider\MadBitProvider;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class MadBitClient
 {
@@ -34,7 +38,7 @@ class MadBitClient
     /**
      * The OAuth access token.
      *
-     * @var AccessTokenInterface|null $accessToken
+     * @var AccessToken|null $accessToken
      */
     protected $accessToken;
 
@@ -44,6 +48,13 @@ class MadBitClient
      * @var Exception|null $lastError
      */
     protected $lastError;
+
+    /**
+     * The Guzzle HTTP client.
+     *
+     * @var Client $httpClient
+     */
+    protected $httpClient;
 
     /**
      * MadBitClient constructor.
@@ -61,6 +72,8 @@ class MadBitClient
             'domain' => $this->domain,
             'apiDomain' => $this->apiDomain,
         ]);
+
+        $this->httpClient = new Client();
     }
 
     /**
@@ -83,6 +96,7 @@ class MadBitClient
 
     /**
      * @param $authorizationCode
+     * @return AccessToken|AccessTokenInterface|null
      * @throws IdentityProviderException
      */
     public function getAccessToken($authorizationCode)
@@ -90,24 +104,24 @@ class MadBitClient
         try {
             // Try to get an access token using the authorization code grant.
             $this->accessToken = $this->provider->getAccessToken('authorization_code', [
-                'code' => $authorizationCode
+                'code' => $authorizationCode,
             ]);
+            return $this->accessToken;
         } catch (IdentityProviderException $e) {
-            // Failed to get the access token or user details.
+            // Failed to get the access token.
             $this->lastError = $e;
             throw $e;
         }
     }
 
     /**
-     * @param $accessToken
      * @return ResourceOwnerInterface
      * @throws Exception
      */
-    public function getResourceOwner($accessToken)
+    public function getResourceOwner()
     {
         try {
-            return $this->provider->getResourceOwner($accessToken);
+            return $this->provider->getResourceOwner($this->accessToken);
         } catch (Exception $e) {
             // Failed to get the access token or user details.
             $this->lastError = $e;
@@ -120,12 +134,24 @@ class MadBitClient
      * @param $action
      * @return RequestInterface
      */
-    public function executeAuthenticatedRequest($method, $action)
+    protected function getAuthenticatedRequest($method, $action)
     {
         return $this->provider->getAuthenticatedRequest(
             $method,
             $this->provider->getApiDomain() . '/' . $action,
             $this->accessToken
         );
+    }
+
+    /**
+     * @param $method
+     * @param $action
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    public function executeAuthenticatedRequest($method, $action)
+    {
+        $request = $this->getAuthenticatedRequest($method, $action);
+        return $this->httpClient->send($request);
     }
 }
