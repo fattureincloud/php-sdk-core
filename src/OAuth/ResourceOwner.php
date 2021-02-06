@@ -5,7 +5,7 @@ namespace MadBit\SDK\OAuth\Provider;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Tool\ArrayAccessorTrait;
 
-class MadBitResourceOwner implements ResourceOwnerInterface
+class ResourceOwner implements ResourceOwnerInterface
 {
     use ArrayAccessorTrait;
 

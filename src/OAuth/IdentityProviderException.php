@@ -2,10 +2,10 @@
 
 namespace MadBit\SDK\OAuth\Provider;
 
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException as BaseIdentityProviderException;
 use Psr\Http\Message\ResponseInterface;
 
-class MadBitIdentityProviderException extends IdentityProviderException
+class IdentityProviderException extends BaseIdentityProviderException
 {
     /**
      * Creates client exception from response.

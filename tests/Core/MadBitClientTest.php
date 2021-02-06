@@ -3,8 +3,8 @@
 namespace MadBit\SDK\Test\Core;
 
 use GuzzleHttp\Exception\ClientException;
-use MadBit\SDK\Core\MadBitClient;
-use MadBit\SDK\OAuth\Provider\MadBitIdentityProviderException;
+use MadBit\SDK\Core\MadBitClientOld;
+use MadBit\SDK\OAuth\Provider\IdentityProviderException;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use TypeError;
@@ -13,14 +13,14 @@ class MadBitClientTest extends TestCase
 {
     private function createFICClient()
     {
-        return new FICClient('12345', '67890', 'https://oauth-test.fattureincloud.it');
+        return new FICClientOld('12345', '67890', 'https://oauth-test.fattureincloud.it');
     }
 
     public function test__construct()
     {
         $client = $this->createFICClient();
         $this->assertInstanceOf(
-            MadBitClient::class,
+            MadBitClientOld::class,
             $client
         );
     }
@@ -36,7 +36,7 @@ class MadBitClientTest extends TestCase
     public function testGetAccessTokenWithWrongAuthCode()
     {
         $client = $this->createFICClient();
-        $this->expectException(MadBitIdentityProviderException::class);
+        $this->expectException(IdentityProviderException::class);
         $client->getAccessToken('00000');
     }
 

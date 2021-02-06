@@ -2,156 +2,140 @@
 
 namespace MadBit\SDK\Core;
 
-use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Provider\ResourceOwnerInterface;
-use League\OAuth2\Client\Token\AccessToken;
-use League\OAuth2\Client\Token\AccessTokenInterface;
-use MadBit\SDK\OAuth\Provider\MadBitProvider;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use MadBit\SDK\Exceptions\MadBitResponseException;
+use MadBit\SDK\Exceptions\MadBitSDKException;
+use Madbit\SDK\HttpClients\MadBitGuzzleHttpClient;
 
 class MadBitClient
 {
     /**
-     * The OAuth authorization server domain.
-     *
-     * @var string $domain
+     * @const string Production API URL.
      */
-    protected $domain;
+    const BASE_API_URL = 'https://api-v2.fattureincloud.it';
 
     /**
-     * The API server domain.
-     *
-     * @var string $apiDomain
+     * @const int The timeout in seconds for a normal request.
      */
-    protected $apiDomain;
-    /**
-     * The OAuth provider.
-     *
-     * @var MadBitProvider $provider
-     */
-    protected $provider;
+    const DEFAULT_REQUEST_TIMEOUT = 30;
 
     /**
-     * The OAuth access token.
-     *
-     * @var AccessToken|null $accessToken
+     * @const int The timeout in seconds for a request that contains file uploads.
      */
-    protected $accessToken;
+    const DEFAULT_FILE_UPLOAD_REQUEST_TIMEOUT = 60;
 
     /**
-     * The last occurred exception.
-     *
-     * @var Exception|null $lastError
+     * @var int the number of calls that have been made to APIs
      */
-    protected $lastError;
+    public static $requestCount = 0;
 
     /**
-     * The Guzzle HTTP client.
-     *
-     * @var Client $httpClient
+     * @var MadBitGuzzleHttpClient HTTP client
      */
     protected $httpClient;
 
     /**
-     * MadBitClient constructor.
-     *
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param string $redirectUri
+     * Instantiates a new MadBitClient object.
      */
-    public function __construct($clientId, $clientSecret, $redirectUri)
+    public function __construct()
     {
-        $this->provider = new MadBitProvider([
-            'clientId' => $clientId,
-            'clientSecret' => $clientSecret,
-            'redirectUri' => $redirectUri,
-            'domain' => $this->domain,
-            'apiDomain' => $this->apiDomain,
-        ]);
-
-        $this->httpClient = new Client();
+        $this->httpClient = new MadBitGuzzleHttpClient();
     }
 
     /**
-     * Return the authorization url to redirect to and the current OAuth state to store somewhere.
+     * Returns the HTTP client handler.
+     *
+     * @return MadBitGuzzleHttpClient
+     */
+    public function getHttpClient(): MadBitGuzzleHttpClient
+    {
+        return $this->httpClient;
+    }
+
+    /**
+     * Returns the base API URL.
+     *
+     * @return string
+     */
+    public function getBaseApiUrl(): string
+    {
+        return static::BASE_API_URL;
+    }
+
+    /**
+     * Prepares the request for sending to the client handler.
+     *
+     * @param MadBitRequest $request
+     *
+     * @throws MadBitSDKException
      *
      * @return array
      */
-    public function getAuthorizationParams()
+    public function prepareRequestMessage(MadBitRequest $request): array
     {
-        // Fetch the authorization URL from the provider; this returns the
-        // urlAuthorize option and generates and applies any necessary parameters
-        // (e.g. state).
-        $authorizationUrl = $this->provider->getAuthorizationUrl();
+        $url = $this->getBaseApiUrl().$request->getUrl();
+
+        // If we're sending files they should be sent as multipart/form-data
+        if ($request->containsFileUploads()) {
+            $requestBody = $request->getMultipartBody();
+            $request->setHeaders([
+                'Content-Type' => 'multipart/form-data; boundary='.$requestBody->getBoundary(),
+            ]);
+        } else {
+            $requestBody = $request->getUrlEncodedBody();
+            $request->setHeaders([
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ]);
+        }
 
         return [
-            'authorization_url' => $authorizationUrl,
-            'state' => $this->provider->getState(),
+            $url,
+            $request->getMethod(),
+            $request->getHeaders(),
+            $requestBody->getBody(),
         ];
     }
 
     /**
-     * @param $authorizationCode
-     * @return AccessToken|AccessTokenInterface|null
-     * @throws IdentityProviderException
+     * Makes the request to API and returns the result.
+     *
+     * @param MadBitRequest $request
+     *
+     * @throws MadBitSDKException
+     * @throws MadBitResponseException
+     *
+     * @return MadBitResponse
      */
-    public function getAccessToken($authorizationCode)
+    public function sendRequest(MadBitRequest $request): MadBitResponse
     {
-        try {
-            // Try to get an access token using the authorization code grant.
-            $this->accessToken = $this->provider->getAccessToken('authorization_code', [
-                'code' => $authorizationCode,
-            ]);
-            return $this->accessToken;
-        } catch (IdentityProviderException $e) {
-            // Failed to get the access token.
-            $this->lastError = $e;
-            throw $e;
+        if ('MadBit\SDK\MadBitRequest' === get_class($request)) {
+            $request->validateAccessToken();
         }
-    }
 
-    /**
-     * @return ResourceOwnerInterface
-     * @throws Exception
-     */
-    public function getResourceOwner()
-    {
-        try {
-            return $this->provider->getResourceOwner($this->accessToken);
-        } catch (Exception $e) {
-            // Failed to get the access token or user details.
-            $this->lastError = $e;
-            throw $e;
+        list($url, $method, $headers, $body) = $this->prepareRequestMessage($request);
+
+        // Since file uploads can take a while, we need to give more time for uploads
+        $timeOut = static::DEFAULT_REQUEST_TIMEOUT;
+        if ($request->containsFileUploads()) {
+            $timeOut = static::DEFAULT_FILE_UPLOAD_REQUEST_TIMEOUT;
         }
-    }
 
-    /**
-     * @param $method
-     * @param $action
-     * @return RequestInterface
-     */
-    protected function getAuthenticatedRequest($method, $action)
-    {
-        return $this->provider->getAuthenticatedRequest(
-            $method,
-            $this->provider->getApiDomain() . '/' . $action,
-            $this->accessToken
+        // Should throw `MadBitSDKException` exception on HTTP client error.
+        // Don't catch to allow it to bubble up.
+        $rawResponse = $this->httpClient->send($url, $method, $body, $headers, $timeOut);
+
+        ++static::$requestCount;
+
+        $returnResponse = new MadBitResponse(
+            $request,
+            $rawResponse->getBody(),
+            $rawResponse->getHttpResponseCode(),
+            $rawResponse->getHeaders()
         );
-    }
 
-    /**
-     * @param $method
-     * @param $action
-     * @return ResponseInterface
-     * @throws GuzzleException
-     */
-    public function executeAuthenticatedRequest($method, $action)
-    {
-        $request = $this->getAuthenticatedRequest($method, $action);
-        return $this->httpClient->send($request);
+        if ($returnResponse->isError()) {
+            throw $returnResponse->getThrownException();
+        }
+
+        return $returnResponse;
     }
 }

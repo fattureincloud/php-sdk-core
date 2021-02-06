@@ -1,7 +1,9 @@
 <?php
 return PhpCsFixer\Config::create()
     ->setRules([
-        '@PSR12' => true,
+        '@PhpCsFixer' => true,
+        'no_superfluous_phpdoc_tags' => false,
+        'phpdoc_add_missing_param_annotation' => true
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()

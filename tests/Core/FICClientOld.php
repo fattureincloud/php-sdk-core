@@ -2,9 +2,9 @@
 
 namespace MadBit\SDK\Test\Core;
 
-use MadBit\SDK\Core\MadBitClient;
+use MadBit\SDK\Core\MadBitClientOld;
 
-class FICClient extends MadBitClient
+class FICClientOld extends MadBitClientOld
 {
     protected $domain = 'https://api-v2.fattureincloud.it';
     protected $apiDomain = 'https://api-v2.fattureincloud.it';

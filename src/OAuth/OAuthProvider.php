@@ -7,7 +7,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 
-class MadBitProvider extends AbstractProvider
+class OAuthProvider extends AbstractProvider
 {
     use BearerAuthorizationTrait;
 
@@ -52,14 +52,14 @@ class MadBitProvider extends AbstractProvider
     protected function checkResponse(ResponseInterface $response, $data)
     {
         if ($response->getStatusCode() >= 400) {
-            throw MadBitIdentityProviderException::clientException($response, $data);
+            throw IdentityProviderException::clientException($response, $data);
         } elseif (isset($data['error'])) {
-            throw MadBitIdentityProviderException::oauthException($response, $data);
+            throw IdentityProviderException::oauthException($response, $data);
         }
     }
 
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        return new MadBitResourceOwner($response);
+        return new ResourceOwner($response);
     }
 }
