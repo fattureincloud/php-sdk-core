@@ -1,6 +1,5 @@
 {
     "name": "fattureincloud/php-sdk-core",
-    "version": "1.0.0-beta",
     "description": "PHP SDK core, shared between Fatture in Cloud and Dipendenti in Cloud",
     "keywords": [
         "fatture", "fattureincloud", "dipendenti", "dipendentincloud", "cloud", "api", "wrapper", "client", "sdk", "oauth"
