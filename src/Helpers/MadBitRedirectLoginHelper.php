@@ -152,7 +152,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    public function getErrorCode(): string
+    public function getErrorCode()
     {
         return $this->getInput('error_code');
     }
@@ -162,7 +162,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    public function getError(): string
+    public function getError()
     {
         return $this->getInput('error');
     }
@@ -172,7 +172,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    public function getErrorReason(): string
+    public function getErrorReason()
     {
         return $this->getInput('error_reason');
     }
@@ -182,7 +182,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    public function getErrorDescription(): string
+    public function getErrorDescription()
     {
         return $this->getInput('error_description');
     }
@@ -215,7 +215,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    protected function getCode(): string
+    protected function getCode()
     {
         return $this->getInput('code');
     }
@@ -225,7 +225,7 @@ class MadBitRedirectLoginHelper
      *
      * @return null|string
      */
-    protected function getState(): string
+    protected function getState()
     {
         return $this->getInput('state');
     }

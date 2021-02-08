@@ -80,7 +80,7 @@ class MadBitResponse
      *
      * @return null|string
      */
-    public function getAccessToken(): string
+    public function getAccessToken()
     {
         return $this->request->getAccessToken();
     }
@@ -126,16 +126,6 @@ class MadBitResponse
     }
 
     /**
-     * Get the app secret proof that was used for this response.
-     *
-     * @return null|string
-     */
-    public function getAppSecretProof(): string
-    {
-        return $this->request->getAppSecretProof();
-    }
-
-    /**
      * Returns true if API returned an error message.
      *
      * @return bool
@@ -168,7 +158,7 @@ class MadBitResponse
      *
      * @return null|MadBitResponseException
      */
-    public function getThrownException(): MadBitResponseException
+    public function getThrownException()
     {
         return $this->thrownException;
     }
@@ -180,7 +170,7 @@ class MadBitResponse
      * - JSON
      *    Most responses from API are JSON
      * - application/x-www-form-urlencoded key/value pairs
-     *    Happens on the `/oauth/access_token` endpoint when exchanging
+     *    Happens on the `/oauth/token` endpoint when exchanging
      *    a short-lived access token for a long-lived access token
      * - raw binary data
      *    When a file is returned by the APIs

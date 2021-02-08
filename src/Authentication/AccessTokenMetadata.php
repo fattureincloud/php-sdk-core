@@ -107,7 +107,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getAppId(): string
+    public function getAppId()
     {
         return $this->getField('app_id');
     }
@@ -117,7 +117,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getApplication(): string
+    public function getApplication()
     {
         return $this->getField('application');
     }
@@ -138,7 +138,7 @@ class AccessTokenMetadata
      *
      * @return null|int
      */
-    public function getErrorCode(): int
+    public function getErrorCode()
     {
         return $this->getErrorProperty('code');
     }
@@ -148,7 +148,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getErrorMessage(): string
+    public function getErrorMessage()
     {
         return $this->getErrorProperty('message');
     }
@@ -158,7 +158,7 @@ class AccessTokenMetadata
      *
      * @return null|int
      */
-    public function getErrorSubcode(): int
+    public function getErrorSubcode()
     {
         return $this->getErrorProperty('subcode');
     }
@@ -168,7 +168,7 @@ class AccessTokenMetadata
      *
      * @return null|DateTime
      */
-    public function getExpiresAt(): DateTime
+    public function getExpiresAt()
     {
         return $this->getField('expires_at');
     }
@@ -178,7 +178,7 @@ class AccessTokenMetadata
      *
      * @return null|bool
      */
-    public function getIsValid(): bool
+    public function getIsValid()
     {
         return $this->getField('is_valid');
     }
@@ -188,7 +188,7 @@ class AccessTokenMetadata
      *
      * @return null|DateTime
      */
-    public function getIssuedAt(): DateTime
+    public function getIssuedAt()
     {
         return $this->getField('issued_at');
     }
@@ -199,7 +199,7 @@ class AccessTokenMetadata
      *
      * @return null|array
      */
-    public function getMetadata(): array
+    public function getMetadata()
     {
         return $this->getField('metadata');
     }
@@ -209,7 +209,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getSso(): string
+    public function getSso()
     {
         return $this->getMetadataProperty('sso');
     }
@@ -219,7 +219,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getAuthType(): string
+    public function getAuthType()
     {
         return $this->getMetadataProperty('auth_type');
     }
@@ -229,7 +229,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getAuthNonce(): string
+    public function getAuthNonce()
     {
         return $this->getMetadataProperty('auth_nonce');
     }
@@ -240,7 +240,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getProfileId(): string
+    public function getProfileId()
     {
         return $this->getField('profile_id');
     }
@@ -261,7 +261,7 @@ class AccessTokenMetadata
      *
      * @return null|string
      */
-    public function getUserId(): string
+    public function getUserId()
     {
         return $this->getField('user_id');
     }

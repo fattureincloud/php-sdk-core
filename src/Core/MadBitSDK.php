@@ -139,7 +139,7 @@ class MadBitSDK
      *
      * @return null|MadBitResponse
      */
-    public function getLastResponse(): MadBitResponse
+    public function getLastResponse()
     {
         return $this->lastResponse;
     }
@@ -159,7 +159,7 @@ class MadBitSDK
      *
      * @return null|AccessToken
      */
-    public function getDefaultAccessToken(): AccessToken
+    public function getDefaultAccessToken()
     {
         return $this->defaultAccessToken;
     }

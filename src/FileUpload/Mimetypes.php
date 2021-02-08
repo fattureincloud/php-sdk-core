@@ -951,7 +951,7 @@ class Mimetypes
      *
      * @return null|string
      */
-    public function fromFilename(string $filename): string
+    public function fromFilename(string $filename)
     {
         return $this->fromExtension(pathinfo($filename, PATHINFO_EXTENSION));
     }

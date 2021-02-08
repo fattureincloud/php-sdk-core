@@ -2,7 +2,7 @@
 
 namespace MadBit\SDK\Http;
 
-class RequestBodyUrlEncoded implements RequestBodyInterface
+class RequestBodyJsonEncoded implements RequestBodyInterface
 {
     /**
      * @var array the parameters to send with this request
@@ -10,7 +10,7 @@ class RequestBodyUrlEncoded implements RequestBodyInterface
     protected $params = [];
 
     /**
-     * Creates a new RequestBodyUrlEncoded entity.
+     * Creates a new RequestBodyJsonEncodedBody entity.
      *
      * @param array $params
      */
@@ -24,6 +24,6 @@ class RequestBodyUrlEncoded implements RequestBodyInterface
      */
     public function getBody(): string
     {
-        return http_build_query($this->params, null, '&');
+        return json_encode($this->params);
     }
 }

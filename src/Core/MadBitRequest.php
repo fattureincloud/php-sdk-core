@@ -5,6 +5,7 @@ namespace MadBit\SDK\Core;
 use MadBit\SDK\Authentication\AccessToken;
 use MadBit\SDK\Exceptions\MadBitSDKException;
 use MadBit\SDK\FileUpload\MadBitFile;
+use MadBit\SDK\Http\RequestBodyJsonEncoded;
 use MadBit\SDK\Http\RequestBodyMultipart;
 use MadBit\SDK\Http\RequestBodyUrlEncoded;
 use MadBit\SDK\Url\MadBitUrlManipulator;
@@ -109,7 +110,7 @@ class MadBitRequest
      *
      * @return null|string
      */
-    public function getAccessToken(): string
+    public function getAccessToken()
     {
         return $this->accessToken;
     }
@@ -139,23 +140,9 @@ class MadBitRequest
      *
      * @return null|MadBitApp
      */
-    public function getApp(): MadBitApp
+    public function getApp()
     {
         return $this->app;
-    }
-
-    /**
-     * Generate an app secret proof to sign this request.
-     *
-     * @return null|string
-     */
-    public function getAppSecretProof()
-    {
-        if (!$accessTokenEntity = $this->getAccessTokenEntity()) {
-            return null;
-        }
-
-        return $accessTokenEntity->getAppSecretProof($this->app->getSecret());
     }
 
     /**
@@ -224,8 +211,8 @@ class MadBitRequest
             $this->setAccessTokenFromParams($params['access_token']);
         }
 
-        // Clean the token & app secret proof from the endpoint.
-        $filterParams = ['access_token', 'appsecret_proof'];
+        // Clean the token from the endpoint.
+        $filterParams = ['access_token'];
         $this->endpoint = MadBitUrlManipulator::removeParamsFromUrl($endpoint, $filterParams);
 
         return $this;
@@ -280,7 +267,7 @@ class MadBitRequest
         }
 
         // Don't let these buggers slip in.
-        unset($params['access_token'], $params['appsecret_proof']);
+        unset($params['access_token']);
 
         $params = $this->sanitizeFileParams($params);
         $this->dangerouslySetParams($params);
@@ -385,31 +372,35 @@ class MadBitRequest
     }
 
     /**
+     * Returns the body of the request as JSON-encoded.
+     *
+     * @return RequestBodyJsonEncoded
+     */
+    public function getJsonEncodedBody(): RequestBodyJsonEncoded
+    {
+        $params = $this->getPostParams();
+
+        return new RequestBodyJsonEncoded($params);
+    }
+
+    /**
      * Generate and return the params for this request.
      *
      * @return array
      */
     public function getParams(): array
     {
-        $params = $this->params;
-
-        $accessToken = $this->getAccessToken();
-        if ($accessToken) {
-            $params['access_token'] = $accessToken;
-            $params['appsecret_proof'] = $this->getAppSecretProof();
-        }
-
-        return $params;
+        return $this->params;
     }
 
     /**
-     * Only return params on POST requests.
+     * Only return params on POST or PUT requests.
      *
      * @return array
      */
     public function getPostParams(): array
     {
-        if ('POST' === $this->getMethod()) {
+        if (in_array($this->getMethod(), ['POST', 'PUT'])) {
             return $this->getParams();
         }
 
@@ -431,7 +422,7 @@ class MadBitRequest
 
         $url = $endpoint;
 
-        if ('POST' !== $this->getMethod()) {
+        if (!in_array($this->getMethod(), ['POST', 'PUT'])) {
             $params = $this->getParams();
             $url = MadBitUrlManipulator::appendParamsToUrl($url, $params);
         }

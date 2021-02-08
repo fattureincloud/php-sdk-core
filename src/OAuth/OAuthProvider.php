@@ -19,19 +19,19 @@ class OAuthProvider extends AbstractProvider
     {
         $this->domain = $options['domain'];
         $this->apiDomain = $options['apiDomain'];
-        unset($options['domain']);
-        unset($options['apiDomain']);
+        unset($options['domain'], $options['apiDomain']);
+
         parent::__construct($options, $collaborators);
     }
 
     public function getBaseAuthorizationUrl()
     {
-        return $this->domain . '/oauth/authorize';
+        return $this->domain.'/oauth/authorize';
     }
 
     public function getBaseAccessTokenUrl(array $params)
     {
-        return $this->domain . '/oauth/access_token';
+        return $this->domain.'/oauth/token';
     }
 
     public function getApiDomain()
@@ -41,7 +41,7 @@ class OAuthProvider extends AbstractProvider
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return $this->apiDomain . '/user/info';
+        return $this->apiDomain.'/user/info';
     }
 
     protected function getDefaultScopes()
@@ -53,7 +53,8 @@ class OAuthProvider extends AbstractProvider
     {
         if ($response->getStatusCode() >= 400) {
             throw IdentityProviderException::clientException($response, $data);
-        } elseif (isset($data['error'])) {
+        }
+        if (isset($data['error'])) {
             throw IdentityProviderException::oauthException($response, $data);
         }
     }

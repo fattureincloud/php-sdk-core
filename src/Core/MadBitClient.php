@@ -4,7 +4,7 @@ namespace MadBit\SDK\Core;
 
 use MadBit\SDK\Exceptions\MadBitResponseException;
 use MadBit\SDK\Exceptions\MadBitSDKException;
-use Madbit\SDK\HttpClients\MadBitGuzzleHttpClient;
+use MadBit\SDK\HttpClients\MadBitGuzzleHttpClient;
 
 class MadBitClient
 {
@@ -72,13 +72,27 @@ class MadBitClient
      */
     public function prepareRequestMessage(MadBitRequest $request): array
     {
+        $method = $request->getMethod();
         $url = $this->getBaseApiUrl().$request->getUrl();
+
+        // Set the access token
+        $accessToken = $request->getAccessToken();
+        if ($accessToken) {
+            $request->setHeaders([
+                'Authorization' => 'Bearer '.$accessToken,
+            ]);
+        }
 
         // If we're sending files they should be sent as multipart/form-data
         if ($request->containsFileUploads()) {
             $requestBody = $request->getMultipartBody();
             $request->setHeaders([
                 'Content-Type' => 'multipart/form-data; boundary='.$requestBody->getBoundary(),
+            ]);
+        } elseif (in_array($method, ['POST', 'PUT'])) {
+            $requestBody = $request->getJsonEncodedBody();
+            $request->setHeaders([
+                'Content-Type' => 'application/json',
             ]);
         } else {
             $requestBody = $request->getUrlEncodedBody();

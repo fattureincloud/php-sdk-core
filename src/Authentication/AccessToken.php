@@ -45,23 +45,11 @@ class AccessToken
     }
 
     /**
-     * Generate an app secret proof to sign a request to API.
-     *
-     * @param string $appSecret the app secret
-     *
-     * @return string
-     */
-    public function getAppSecretProof(string $appSecret): string
-    {
-        return hash_hmac('sha256', $this->value, $appSecret);
-    }
-
-    /**
      * Getter for expiresAt.
      *
      * @return null|DateTime
      */
-    public function getExpiresAt(): DateTime
+    public function getExpiresAt()
     {
         return $this->expiresAt;
     }

@@ -11,7 +11,7 @@ class MadBitResumableUploadException extends MadBitSDKException
     /**
      * @return null|int
      */
-    public function getStartOffset(): int
+    public function getStartOffset()
     {
         return $this->startOffset;
     }
@@ -27,7 +27,7 @@ class MadBitResumableUploadException extends MadBitSDKException
     /**
      * @return null|int
      */
-    public function getEndOffset(): int
+    public function getEndOffset()
     {
         return $this->endOffset;
     }

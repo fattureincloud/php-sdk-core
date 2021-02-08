@@ -118,7 +118,7 @@ class MadBitUrlManipulator
      *
      * @return null|string
      */
-    public static function forceSlashPrefix(string $string): string
+    public static function forceSlashPrefix(string $string)
     {
         if (!$string) {
             return $string;

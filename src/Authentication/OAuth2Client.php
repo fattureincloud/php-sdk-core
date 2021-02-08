@@ -18,7 +18,7 @@ class OAuth2Client
     /**
      * @const string The base authorization URL.
      */
-    const BASE_AUTHORIZATION_URL = 'https://secure.fattureincloud.it';
+    const BASE_AUTHORIZATION_URL = 'https://api-v2.fattureincloud.it';
 
     /**
      * The MadBitApp entity.
@@ -57,7 +57,7 @@ class OAuth2Client
      *
      * @return null|MadBitRequest
      */
-    public function getLastRequest(): MadBitRequest
+    public function getLastRequest()
     {
         return $this->lastRequest;
     }
@@ -108,7 +108,7 @@ class OAuth2Client
             'response_type' => 'code',
             'sdk' => 'php-sdk-'.MadBitSDK::VERSION,
             'redirect_uri' => $redirectUrl,
-            'scope' => implode(',', $scope),
+            'scope' => implode(' ', $scope),
         ];
 
         return static::BASE_AUTHORIZATION_URL.'/oauth/authorize?'.http_build_query($params, null, $separator);
@@ -129,55 +129,10 @@ class OAuth2Client
         $params = [
             'code' => $code,
             'redirect_uri' => $redirectUri,
+            'grant_type' => 'authorization_code',
         ];
 
         return $this->requestAnAccessToken($params);
-    }
-
-    /**
-     * Exchanges a short-lived access token with a long-lived access token.
-     *
-     * @param AccessToken|string $accessToken
-     *
-     * @throws MadBitSDKException
-     *
-     * @return AccessToken
-     */
-    public function getLongLivedAccessToken($accessToken): AccessToken
-    {
-        $accessToken = $accessToken instanceof AccessToken ? $accessToken->getValue() : $accessToken;
-        $params = [
-            'grant_type' => 'fb_exchange_token',
-            'fb_exchange_token' => $accessToken,
-        ];
-
-        return $this->requestAnAccessToken($params);
-    }
-
-    /**
-     * Get a valid code from an access token.
-     *
-     * @param AccessToken|string $accessToken
-     * @param string             $redirectUri
-     *
-     * @throws MadBitSDKException
-     *
-     * @return AccessToken
-     */
-    public function getCodeFromLongLivedAccessToken($accessToken, $redirectUri = ''): AccessToken
-    {
-        $params = [
-            'redirect_uri' => $redirectUri,
-        ];
-
-        $response = $this->sendRequestWithClientParams('/oauth/client_code', $params, $accessToken);
-        $data = $response->getDecodedBody();
-
-        if (!isset($data['code'])) {
-            throw new MadBitSDKException('Code was not returned from API.', 401);
-        }
-
-        return $data['code'];
     }
 
     /**
@@ -191,7 +146,7 @@ class OAuth2Client
      */
     protected function requestAnAccessToken(array $params): AccessToken
     {
-        $response = $this->sendRequestWithClientParams('/oauth/access_token', $params);
+        $response = $this->sendRequestWithClientParams('/oauth/token', $params);
         $data = $response->getDecodedBody();
 
         if (!isset($data['access_token'])) {
@@ -224,12 +179,10 @@ class OAuth2Client
     {
         $params += $this->getClientParams();
 
-        $accessToken = $accessToken ?: $this->app->getAccessToken();
-
         $this->lastRequest = new MadBitRequest(
             $this->app,
             $accessToken,
-            'GET',
+            'POST',
             $endpoint,
             $params
         );
